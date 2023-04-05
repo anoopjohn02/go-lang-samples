@@ -1,6 +1,8 @@
 package service
 
-import "github.com/gin-gonic/gin"
+import (
+	"com/anoop/examples/internal/models"
+)
 
 type MeasurementService struct {
 }
@@ -9,18 +11,18 @@ func NewMeasurementService() *MeasurementService {
 	return &MeasurementService{}
 }
 
-func (s *MeasurementService) send(ctx *gin.Context) {
+func (s *MeasurementService) send(measurement models.Measurement) models.Measurement {
 
 }
 
-func (s *MeasurementService) get(ctx *gin.Context) {
+func (s *MeasurementService) get(id string) models.Measurement {
 
 }
 
-func (s *MeasurementService) getByDeviceId(ctx *gin.Context) {
+func (s *MeasurementService) getByDeviceId(deviceId string) models.Measurement {
 
 }
 
-func (s *MeasurementService) delete(ctx *gin.Context) {
+func (s *MeasurementService) delete(id string) {
 
 }
