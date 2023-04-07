@@ -20,21 +20,35 @@ func (req *AlertController) send(ctx *gin.Context) {
 	var dataRequest models.Alert
 	if err := ctx.ShouldBindJSON(&dataRequest); err != nil {
 		req.finishWithError(ctx, http.StatusBadRequest, err)
+		return
 	}
 
 	if _, err := req.ser.Send(dataRequest); err != nil {
 		req.finishWithError(ctx, http.StatusBadRequest, err)
+		return
 	}
 
 	ctx.String(http.StatusOK, "")
 }
 
 func (s *AlertController) get(ctx *gin.Context) {
-
+	id := ctx.Params.ByName("id")
+	alert, err := s.ser.Get(id)
+	if err != nil {
+		s.finishWithError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, alert)
 }
 
 func (s *AlertController) getByDeviceId(ctx *gin.Context) {
-
+	deviceId := ctx.Params.ByName("deviceId")
+	alerts, err := s.ser.GetByDeviceId(deviceId)
+	if err != nil {
+		s.finishWithError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, alerts)
 }
 
 func (s *AlertController) delete(ctx *gin.Context) {

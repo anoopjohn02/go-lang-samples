@@ -66,6 +66,8 @@ func (s *AlertService) Delete(id string) error {
 
 func GetModel(entity *entity.Alerts) *models.Alert {
 	return &models.Alert{
+		Id:          entity.ID.Hex(),
+		UId:         entity.ID.Hex(),
 		DeviceId:    entity.DeviceId,
 		Type:        entity.Type,
 		Severity:    entity.Severity,

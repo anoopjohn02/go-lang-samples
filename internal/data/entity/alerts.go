@@ -7,7 +7,7 @@ import (
 )
 
 type Alerts struct {
-	Id          primitive.ObjectID
+	ID          primitive.ObjectID `bson:"_id"`
 	DeviceId    string
 	Type        string
 	Severity    string

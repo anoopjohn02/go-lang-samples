@@ -53,10 +53,10 @@ func setupRoutes(engine *gin.Engine, deviceContext *commons.DeviceContext) {
 		alerts := v1.Group("/alerts")
 		{
 			alertController := NewAlertController(deviceContext.AlertService)
-			alerts.GET("/{id}", alertController.get)
-			alerts.GET("/device/{deviceId}", alertController.getByDeviceId)
+			alerts.GET("/:id", alertController.get)
+			alerts.GET("/device/:deviceId", alertController.getByDeviceId)
 			alerts.POST("", alertController.send)
-			alerts.DELETE("/{id}", alertController.delete)
+			alerts.DELETE("/:id", alertController.delete)
 		}
 	}
 }
