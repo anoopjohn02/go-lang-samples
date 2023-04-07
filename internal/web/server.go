@@ -4,7 +4,8 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
+
+	"com/anoop/examples/internal/commons"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,20 +35,30 @@ func (r *RestService) Stop() {
 	}
 }
 
-func NewService() *RestService {
-	var port = os.Getenv("PORT")
+func NewService(deviceContext *commons.DeviceContext) *RestService {
 	engine := gin.Default()
-	setupRoutes(engine)
+	setupRoutes(engine, deviceContext)
 
 	return &RestService{
 		engine: engine,
-		server: &http.Server{Addr: ":" + port, Handler: engine},
+		server: &http.Server{Addr: ":" + "8080", Handler: engine},
 		stop:   make(chan string),
 	}
 }
 
-func setupRoutes(engine *gin.Engine) {
+func setupRoutes(engine *gin.Engine, deviceContext *commons.DeviceContext) {
 	engine.GET("/api/ping", ping)
+	v1 := engine.Group("/v1")
+	{
+		alerts := v1.Group("/alerts")
+		{
+			alertController := NewAlertController(deviceContext.AlertService)
+			alerts.GET("/{id}", alertController.get)
+			alerts.GET("/device/{deviceId}", alertController.getByDeviceId)
+			alerts.POST("", alertController.send)
+			alerts.DELETE("/{id}", alertController.delete)
+		}
+	}
 }
 
 func ping(c *gin.Context) {

@@ -1,16 +1,32 @@
 package web
 
-import "github.com/gin-gonic/gin"
+import (
+	"com/anoop/examples/internal/models"
+	"com/anoop/examples/internal/service"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 type AlertController struct {
+	ser service.AlertService
 }
 
-func NewAlertController() *AlertController {
-	return &AlertController{}
+func NewAlertController(service *service.AlertService) *AlertController {
+	return &AlertController{ser: *service}
 }
 
-func (s *AlertController) send(ctx *gin.Context) {
+func (req *AlertController) send(ctx *gin.Context) {
+	var dataRequest models.Alert
+	if err := ctx.ShouldBindJSON(&dataRequest); err != nil {
+		req.finishWithError(ctx, http.StatusBadRequest, err)
+	}
 
+	if _, err := req.ser.Send(dataRequest); err != nil {
+		req.finishWithError(ctx, http.StatusBadRequest, err)
+	}
+
+	ctx.String(http.StatusOK, "")
 }
 
 func (s *AlertController) get(ctx *gin.Context) {
@@ -23,4 +39,12 @@ func (s *AlertController) getByDeviceId(ctx *gin.Context) {
 
 func (s *AlertController) delete(ctx *gin.Context) {
 
+}
+
+func (req *AlertController) finishWithError(ctx *gin.Context, status int, err error) {
+	var response = struct {
+		Error string `json:"error"`
+	}{Error: err.Error()}
+
+	ctx.JSON(status, response)
 }
