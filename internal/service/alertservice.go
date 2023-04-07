@@ -1,34 +1,76 @@
 package service
 
 import (
+	"com/anoop/examples/internal/data/entity"
 	"com/anoop/examples/internal/data/repo"
-	"com/anoop/examples/internal/data/repo/mongorepo"
 	"com/anoop/examples/internal/models"
-
-	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 )
 
 type AlertService struct {
 	repo repo.AlertRepository
 }
 
-func NewAlertService(mongo *mongo.Database) *AlertService {
-	repo := mongorepo.NewAlertRepository(mongo)
+func NewAlertService(repo repo.AlertRepository) *AlertService {
 	return &AlertService{repo: repo}
 }
 
-func (s *AlertService) send(alert models.Alert) models.Alert {
-
+func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
+	alerts := &entity.Alerts{
+		DeviceId:    alert.DeviceId,
+		Type:        alert.Type,
+		Severity:    alert.Severity,
+		Key:         alert.Key,
+		Description: alert.Description,
+		DateTime:    alert.DateTime,
+	}
+	result, error := s.repo.Save(*alerts)
+	if error != nil {
+		log.Printf("Unable to insert data into database: %v\n", error)
+		return &models.Alert{}, error
+	}
+	return GetModel(result), nil
 }
 
-func (s *AlertService) get(id string) models.Alert {
-
+func (s *AlertService) Get(id string) (*models.Alert, error) {
+	result, error := s.repo.Get(id)
+	if error != nil {
+		log.Printf("Unable to get data from database: %v\n", error)
+		return &models.Alert{}, error
+	}
+	return GetModel(result), nil
 }
 
-func (s *AlertService) getByDeviceId(deviceId string) models.Alert {
+func (s *AlertService) GetByDeviceId(deviceId string) (*[]models.Alert, error) {
+	result, error := s.repo.ByDeviceId(deviceId)
+	if error != nil {
+		log.Printf("Unable to get data from database: %v\n", error)
+		return &[]models.Alert{}, error
+	}
 
+	res := []models.Alert{}
+	for _, entity := range *result {
+		res = append(res, *GetModel(&entity))
+	}
+	return &res, nil
 }
 
-func (s *AlertService) delete(id string) {
+func (s *AlertService) Delete(id string) error {
+	error := s.repo.Delete(id)
+	if error != nil {
+		log.Printf("Unable to delete data from database: %v\n", error)
+		return error
+	}
+	return nil
+}
 
+func GetModel(entity *entity.Alerts) *models.Alert {
+	return &models.Alert{
+		DeviceId:    entity.DeviceId,
+		Type:        entity.Type,
+		Severity:    entity.Severity,
+		Key:         entity.Key,
+		Description: entity.Description,
+		DateTime:    entity.DateTime,
+	}
 }

@@ -17,13 +17,13 @@ func NewAlertRepository(db *mongo.Database) *MongoAlertRepository {
 	return &MongoAlertRepository{coll: coll}
 }
 
-func (r *MongoAlertRepository) Save(entity entity.Alerts) (entity.Alerts, error) {
-	_, err := r.coll.InsertOne(context.Background(), entity)
+func (r *MongoAlertRepository) Save(ent entity.Alerts) (*entity.Alerts, error) {
+	_, err := r.coll.InsertOne(context.Background(), ent)
 	if err != nil {
-		return entity, err
+		return &entity.Alerts{}, err
 	}
-	//entity.Id = res.InsertedID
-	return entity, nil
+	//ent.Id = res.InsertedID
+	return &ent, nil
 }
 
 func (r *MongoAlertRepository) Get(id string) (*entity.Alerts, error) {
