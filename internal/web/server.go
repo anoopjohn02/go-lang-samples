@@ -59,7 +59,7 @@ func setupRoutes(engine *gin.Engine, deviceContext *commons.DeviceContext) {
 			alerts.POST("", alertController.send)
 			alerts.DELETE("/:id", alertController.delete)
 		}
-		v1.Use(middlewares.JwtAuthMiddleware())
+		v1.Use(middlewares.JwtAuthMiddleware(deviceContext.TokenValidator))
 	}
 }
 

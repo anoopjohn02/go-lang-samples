@@ -1,7 +1,13 @@
 package client
 
 import (
-	"strconv"
+	"bytes"
+	"com/anoop/examples/internal/models"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -17,32 +23,36 @@ func NewDeviceClient(host string) *DeviceClient {
 	return &DeviceClient{cache, host}
 }
 
-func (dc *DeviceClient) GetDeviceProfile(token string) (string, error) {
-	furnaceId, found := dc.cache.Get(strconv.Itoa(deviceId))
+func (dc *DeviceClient) GetDeviceProfile(token string) (*models.DeviceProfile, error) {
+	/*furnaceId, found := dc.cache.Get(strconv.Itoa(token))
 	if found {
 		return furnaceId.(string), nil
-	}
+	}*/
 
-	url := fmt.Sprintf("%v/devices/%v/attributes", dc.host, deviceId)
-
+	url := fmt.Sprintf("%v/user/info", dc.accountHost)
 	log.Printf("Accessing URL : %v\n", url)
-	response, err := http.Get(url)
+
+	bearer := "Bearer " + token
+	req, err := http.NewRequest("GET", url, bytes.NewBuffer(nil))
+	req.Header.Add("Authorization", bearer)
+	client := &http.Client{}
+	response, err := client.Do(req)
 	if err != nil {
-		return "", err
+		log.Println("Error on response.\n[ERROR] -", err)
+		return &models.DeviceProfile{}, err
 	}
+	defer response.Body.Close()
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", err
+		return &models.DeviceProfile{}, err
 	}
 
-	var furnaces []Furnace
-	if err := json.Unmarshal(responseData, &furnaces); err != nil {
-		return "", err
+	var profile models.DeviceProfile
+	if err := json.Unmarshal(responseData, &profile); err != nil {
+		return &models.DeviceProfile{}, err
 	}
-	for _, furnace := range furnaces {
-		dc.cache.Set(strconv.Itoa(deviceId), furnace.Value, cache.DefaultExpiration)
-		return furnace.Value, nil
-	}
-	return "", &furnaceNotFoundError{deviceId}
+
+	//dc.cache.Set(strconv.Itoa(deviceId), furnace.Value, cache.DefaultExpiration)
+	return &profile, nil
 }

@@ -3,17 +3,22 @@ package token
 import (
 	"strings"
 
+	"com/anoop/examples/internal/client"
+
 	"github.com/gin-gonic/gin"
 )
 
-func TokenValid(c *gin.Context) error {
+type TokenValidator struct {
+	device *client.DeviceClient
+}
+
+func NewTokenValidator(deviceClient *client.DeviceClient) *TokenValidator {
+	return &TokenValidator{device: deviceClient}
+}
+
+func (t *TokenValidator) TokenValid(c *gin.Context) error {
 	tokenString := ExtractToken(c)
-	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(os.Getenv("API_SECRET")), nil
-	})
+	_, err := t.device.GetDeviceProfile(tokenString)
 	if err != nil {
 		return err
 	}
