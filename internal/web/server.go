@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"com/anoop/examples/internal/commons"
+	"com/anoop/examples/internal/web/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -58,6 +59,7 @@ func setupRoutes(engine *gin.Engine, deviceContext *commons.DeviceContext) {
 			alerts.POST("", alertController.send)
 			alerts.DELETE("/:id", alertController.delete)
 		}
+		v1.Use(middlewares.JwtAuthMiddleware())
 	}
 }
 
