@@ -4,15 +4,19 @@ import (
 	"com/anoop/examples/internal/data/entity"
 	"com/anoop/examples/internal/data/repo"
 	"com/anoop/examples/internal/models"
+	"com/anoop/examples/internal/mqtt"
+	"encoding/json"
+	"fmt"
 	"log"
 )
 
 type AlertService struct {
 	repo repo.AlertRepository
+	mqtt *mqtt.IotoMqttConnection
 }
 
-func NewAlertService(repo repo.AlertRepository) *AlertService {
-	return &AlertService{repo: repo}
+func NewAlertService(repo repo.AlertRepository, mqtt *mqtt.IotoMqttConnection) *AlertService {
+	return &AlertService{repo: repo, mqtt: mqtt}
 }
 
 func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
@@ -30,6 +34,16 @@ func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
 		log.Printf("Unable to insert data into database: %v\n", error)
 		return &models.Alert{}, error
 	}
+	jsonAlert, err := json.Marshal(alert)
+    if err != nil {
+        fmt.Println(err)
+    }
+	message := models.IotoMessage{
+		MessageType: "ALERT",
+		DeviceId: alert.DeviceId,
+		Message: jsonAlert,
+	}
+	s.mqtt.Publish(message)
 	return GetModel(result), nil
 }
 

@@ -43,7 +43,6 @@ func (s *AlertController) get(ctx *gin.Context) {
 
 func (s *AlertController) getByDeviceId(ctx *gin.Context) {
 	device := ctx.MustGet("User").(*models.DeviceProfile)
-	//deviceId := ctx.Params.ByName("deviceId")
 	alerts, err := s.ser.GetByDeviceId(device.UserName)
 	if err != nil {
 		s.finishWithError(ctx, http.StatusBadRequest, err)
