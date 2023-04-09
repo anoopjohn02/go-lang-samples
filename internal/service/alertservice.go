@@ -24,6 +24,7 @@ func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
 		Description: alert.Description,
 		DateTime:    alert.DateTime,
 	}
+
 	result, error := s.repo.Save(*alerts)
 	if error != nil {
 		log.Printf("Unable to insert data into database: %v\n", error)

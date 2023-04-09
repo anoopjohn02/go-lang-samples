@@ -42,8 +42,9 @@ func (s *AlertController) get(ctx *gin.Context) {
 }
 
 func (s *AlertController) getByDeviceId(ctx *gin.Context) {
-	deviceId := ctx.Params.ByName("deviceId")
-	alerts, err := s.ser.GetByDeviceId(deviceId)
+	device := ctx.MustGet("User").(*models.DeviceProfile)
+	//deviceId := ctx.Params.ByName("deviceId")
+	alerts, err := s.ser.GetByDeviceId(device.UserName)
 	if err != nil {
 		s.finishWithError(ctx, http.StatusBadRequest, err)
 		return
@@ -52,7 +53,13 @@ func (s *AlertController) getByDeviceId(ctx *gin.Context) {
 }
 
 func (s *AlertController) delete(ctx *gin.Context) {
-
+	id := ctx.Params.ByName("id")
+	err := s.ser.Delete(id)
+	if err != nil {
+		s.finishWithError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, "")
 }
 
 func (req *AlertController) finishWithError(ctx *gin.Context, status int, err error) {

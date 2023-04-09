@@ -8,4 +8,5 @@ type DeviceProfile struct {
 	CompanyUser    bool     `json:"companyUser"`
 	Roles          []string `json:"roles"`
 	ManufacturerId string   `json:"manufacturerId"`
+	Token          string
 }

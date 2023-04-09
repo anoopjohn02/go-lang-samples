@@ -51,15 +51,15 @@ func setupRoutes(engine *gin.Engine, deviceContext *commons.DeviceContext) {
 	engine.GET("/api/ping", ping)
 	v1 := engine.Group("/v1")
 	{
+		v1.Use(middlewares.JwtAuthMiddleware(deviceContext.TokenValidator))
 		alerts := v1.Group("/alerts")
 		{
 			alertController := NewAlertController(deviceContext.AlertService)
 			alerts.GET("/:id", alertController.get)
-			alerts.GET("/device/:deviceId", alertController.getByDeviceId)
+			alerts.GET("", alertController.getByDeviceId)
 			alerts.POST("", alertController.send)
 			alerts.DELETE("/:id", alertController.delete)
 		}
-		v1.Use(middlewares.JwtAuthMiddleware(deviceContext.TokenValidator))
 	}
 }
 

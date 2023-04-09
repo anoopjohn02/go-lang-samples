@@ -1,6 +1,8 @@
 package token
 
 import (
+	"errors"
+	"log"
 	"strings"
 
 	"com/anoop/examples/internal/client"
@@ -18,10 +20,16 @@ func NewTokenValidator(deviceClient *client.DeviceClient) *TokenValidator {
 
 func (t *TokenValidator) TokenValid(c *gin.Context) error {
 	tokenString := ExtractToken(c)
-	_, err := t.device.GetDeviceProfile(tokenString)
+	if tokenString == "" {
+		return errors.New("Invalid Token")
+	}
+	user, err := t.device.GetDeviceProfile(tokenString)
 	if err != nil {
 		return err
 	}
+	user.Token = tokenString
+	log.Printf("Logged in user %s", user.UserName)
+	c.Set("User", user)
 	return nil
 }
 
