@@ -3,8 +3,8 @@ package main
 import (
 	"com/anoop/examples/internal/client"
 	"com/anoop/examples/internal/data/repo/mongorepo"
-	"com/anoop/examples/internal/mqtt"
 	"com/anoop/examples/internal/service"
+	"com/anoop/examples/internal/service/mqtt"
 	"com/anoop/examples/internal/token"
 	"com/anoop/examples/internal/web"
 	"fmt"
@@ -32,13 +32,13 @@ func Context() *commons.DeviceContext {
 
 	mongorep := mongorepo.NewMongoRepo(uri)
 	db := mongorep.Db()
-	mqttConnector := mqtt.NewIotoMqttConnection(mqttUrl, mqttUserName, mqttPassword, mqttTopic)
+	mqttMessageService := mqtt.NewMqttMessageService(mqttUrl, mqttUserName, mqttPassword, mqttTopic)
 
 	alertRepo := mongorepo.NewAlertRepository(db)
-	alertService := service.NewAlertService(alertRepo, mqttConnector)
+	alertService := service.NewAlertService(alertRepo, mqttMessageService)
 	deviceClient := client.NewDeviceClient(accountUrl)
 	tokenValidator := token.NewTokenValidator(deviceClient)
 
 	return &commons.DeviceContext{AlertService: alertService,
-		TokenValidator: tokenValidator, MqttConnector: mqttConnector}
+		TokenValidator: tokenValidator, MessageService: mqttMessageService}
 }

@@ -4,19 +4,18 @@ import (
 	"com/anoop/examples/internal/data/entity"
 	"com/anoop/examples/internal/data/repo"
 	"com/anoop/examples/internal/models"
-	"com/anoop/examples/internal/mqtt"
 	"encoding/json"
 	"fmt"
 	"log"
 )
 
 type AlertService struct {
-	repo repo.AlertRepository
-	mqtt *mqtt.IotoMqttConnection
+	repo           repo.AlertRepository
+	messageService MessageService
 }
 
-func NewAlertService(repo repo.AlertRepository, mqtt *mqtt.IotoMqttConnection) *AlertService {
-	return &AlertService{repo: repo, mqtt: mqtt}
+func NewAlertService(repo repo.AlertRepository, messageService MessageService) *AlertService {
+	return &AlertService{repo: repo, messageService: messageService}
 }
 
 func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
@@ -44,7 +43,7 @@ func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
 		DeviceId:    alert.DeviceId,
 		Message:     string(jsonAlert),
 	}
-	s.mqtt.Publish(message)
+	s.messageService.Publish(message)
 	return GetModel(result), nil
 }
 

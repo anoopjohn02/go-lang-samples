@@ -10,7 +10,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-type IotoMqttConnection struct {
+type MqttMessageService struct {
 	mqtt  mqtt.Client
 	topic string
 }
@@ -27,7 +27,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 	fmt.Printf("Mqtt Connection lost: %v", err)
 }
 
-func NewIotoMqttConnection(broker string, username string, password string, topic string) *IotoMqttConnection {
+func NewMqttMessageService(broker string, username string, password string, topic string) *MqttMessageService {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(broker)
 	opts.SetClientID(fmt.Sprintf("go_mqtt_client_%s", username))
@@ -40,10 +40,10 @@ func NewIotoMqttConnection(broker string, username string, password string, topi
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
-	return &IotoMqttConnection{mqtt: client, topic: topic}
+	return &MqttMessageService{mqtt: client, topic: topic}
 }
 
-func (m *IotoMqttConnection) Publish(message models.IotoMessage) {
+func (m *MqttMessageService) Publish(message models.IotoMessage) {
 	text, err := json.Marshal(message)
 	if err != nil {
 		fmt.Println(err)
@@ -59,7 +59,7 @@ func (m *IotoMqttConnection) Publish(message models.IotoMessage) {
 	time.Sleep(time.Second)
 }
 
-func (m *IotoMqttConnection) Sub(topic string) {
+func (m *MqttMessageService) Sub(topic string) {
 	token := m.mqtt.Subscribe(topic, 1, nil)
 	token.Wait()
 	fmt.Printf("Subscribed to topic: %s", topic)
