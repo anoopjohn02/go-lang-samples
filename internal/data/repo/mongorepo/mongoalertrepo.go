@@ -20,11 +20,11 @@ func NewAlertRepository(db *mongo.Database) *MongoAlertRepository {
 }
 
 func (r *MongoAlertRepository) Save(ent entity.Alerts) (*entity.Alerts, error) {
+	ent.ID = primitive.NewObjectID()
 	_, err := r.coll.InsertOne(context.Background(), ent)
 	if err != nil {
 		return &entity.Alerts{}, err
 	}
-	//ent._Id = res.InsertedID
 	return &ent, nil
 }
 

@@ -34,14 +34,15 @@ func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
 		log.Printf("Unable to insert data into database: %v\n", error)
 		return &models.Alert{}, error
 	}
+	alert.UId = alerts.ID.Hex()
 	jsonAlert, err := json.Marshal(alert)
-    if err != nil {
-        fmt.Println(err)
-    }
+	if err != nil {
+		fmt.Println(err)
+	}
 	message := models.IotoMessage{
 		MessageType: "ALERT",
-		DeviceId: alert.DeviceId,
-		Message: jsonAlert,
+		DeviceId:    alert.DeviceId,
+		Message:     string(jsonAlert),
 	}
 	s.mqtt.Publish(message)
 	return GetModel(result), nil

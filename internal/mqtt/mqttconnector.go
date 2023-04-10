@@ -4,6 +4,7 @@ import (
 	"com/anoop/examples/internal/models"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -48,8 +49,13 @@ func (m *IotoMqttConnection) Publish(message models.IotoMessage) {
 		fmt.Println(err)
 		return
 	}
-	token := m.mqtt.Publish(m.topic, 0, false, text)
+	log.Printf("Sending mqtt message to : %s %s\n", m.topic, text)
+	token := m.mqtt.Publish(m.topic, 0, true, text)
 	token.Wait()
+	if token.Error() != nil {
+		log.Printf("Error publishing message : %s\n", token.Error())
+		panic(token.Error())
+	}
 	time.Sleep(time.Second)
 }
 
