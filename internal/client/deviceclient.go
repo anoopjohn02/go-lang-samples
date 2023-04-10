@@ -16,11 +16,13 @@ import (
 type DeviceClient struct {
 	cache       *cache.Cache
 	accountHost string
+	httpClient  *http.Client
 }
 
 func NewDeviceClient(host string) *DeviceClient {
 	cache := cache.New(60*time.Minute, 60*time.Minute)
-	return &DeviceClient{cache, host}
+	client := http.Client{}
+	return &DeviceClient{cache: cache, accountHost: host, httpClient: &client}
 }
 
 func (dc *DeviceClient) GetDeviceProfile(token string) (*models.DeviceProfile, error) {
@@ -35,8 +37,7 @@ func (dc *DeviceClient) GetDeviceProfile(token string) (*models.DeviceProfile, e
 	bearer := "Bearer " + token
 	req, err := http.NewRequest("GET", url, bytes.NewBuffer(nil))
 	req.Header.Add("Authorization", bearer)
-	client := &http.Client{}
-	response, err := client.Do(req)
+	response, err := dc.httpClient.Do(req)
 	if err != nil {
 		log.Println("Error on response.\n[ERROR] -", err)
 		return &models.DeviceProfile{}, err
