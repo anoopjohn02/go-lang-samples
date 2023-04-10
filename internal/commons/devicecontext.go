@@ -6,7 +6,8 @@ import (
 )
 
 type DeviceContext struct {
-	AlertService   *service.AlertService
-	TokenValidator *token.TokenValidator
-	MessageService service.MessageService
+	AlertService       *service.AlertService
+	TokenValidator     *token.TokenValidator
+	MeasurementService *service.MeasurementService
+	MessageService     service.MessageService
 }

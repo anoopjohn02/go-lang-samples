@@ -60,6 +60,14 @@ func setupRoutes(engine *gin.Engine, deviceContext *commons.DeviceContext) {
 			alerts.POST("", alertController.send)
 			alerts.DELETE("/:id", alertController.delete)
 		}
+		measurements := v1.Group("/measurements")
+		{
+			measurementController := NewMeasurementController(*deviceContext.MeasurementService)
+			measurements.GET("/:id", measurementController.get)
+			measurements.GET("", measurementController.getByDeviceId)
+			measurements.POST("", measurementController.send)
+			measurements.DELETE("/:id", measurementController.delete)
+		}
 	}
 }
 

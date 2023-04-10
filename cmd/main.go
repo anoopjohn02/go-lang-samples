@@ -35,10 +35,13 @@ func Context() *commons.DeviceContext {
 	mqttMessageService := mqtt.NewMqttMessageService(mqttUrl, mqttUserName, mqttPassword, mqttTopic)
 
 	alertRepo := mongorepo.NewAlertRepository(db)
+	measurementRepo := mongorepo.NewMeasurementRepository(db)
 	alertService := service.NewAlertService(alertRepo, mqttMessageService)
+	measurementService := service.NewMeasurementService(measurementRepo, *alertService)
 	deviceClient := client.NewDeviceClient(accountUrl)
 	tokenValidator := token.NewTokenValidator(deviceClient)
 
 	return &commons.DeviceContext{AlertService: alertService,
-		TokenValidator: tokenValidator, MessageService: mqttMessageService}
+		TokenValidator: tokenValidator, MeasurementService: measurementService,
+		MessageService: mqttMessageService}
 }
