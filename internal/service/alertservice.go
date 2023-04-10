@@ -33,7 +33,7 @@ func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
 		log.Printf("Unable to insert data into database: %v\n", error)
 		return &models.Alert{}, error
 	}
-	alert.UId = alerts.ID.Hex()
+	alert.UId = result.ID.Hex()
 	jsonAlert, err := json.Marshal(alert)
 	if err != nil {
 		fmt.Println(err)
@@ -44,6 +44,7 @@ func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
 		Message:     string(jsonAlert),
 	}
 	s.messageService.Publish(message)
+
 	return GetModel(result), nil
 }
 
