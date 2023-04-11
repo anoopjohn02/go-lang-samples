@@ -16,7 +16,7 @@ func NewAlertController(service *service.AlertService) *AlertController {
 	return &AlertController{ser: *service}
 }
 
-func (req *AlertController) send(ctx *gin.Context) {
+func (req *AlertController) Send(ctx *gin.Context) {
 	var dataRequest models.Alert
 	if err := ctx.ShouldBindJSON(&dataRequest); err != nil {
 		req.finishWithError(ctx, http.StatusBadRequest, err)
@@ -31,7 +31,7 @@ func (req *AlertController) send(ctx *gin.Context) {
 	ctx.String(http.StatusOK, "")
 }
 
-func (s *AlertController) get(ctx *gin.Context) {
+func (s *AlertController) Get(ctx *gin.Context) {
 	id := ctx.Params.ByName("id")
 	alert, err := s.ser.Get(id)
 	if err != nil {
@@ -41,7 +41,7 @@ func (s *AlertController) get(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, alert)
 }
 
-func (s *AlertController) getByDeviceId(ctx *gin.Context) {
+func (s *AlertController) GetByDeviceId(ctx *gin.Context) {
 	device := ctx.MustGet("User").(*models.DeviceProfile)
 	alerts, err := s.ser.GetByDeviceId(device.UserName)
 	if err != nil {
@@ -51,7 +51,7 @@ func (s *AlertController) getByDeviceId(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, alerts)
 }
 
-func (s *AlertController) delete(ctx *gin.Context) {
+func (s *AlertController) Delete(ctx *gin.Context) {
 	id := ctx.Params.ByName("id")
 	err := s.ser.Delete(id)
 	if err != nil {

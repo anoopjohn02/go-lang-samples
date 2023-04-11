@@ -45,7 +45,7 @@ func (s *AlertService) Send(alert models.Alert) (*models.Alert, error) {
 	}
 	s.messageService.Publish(message)
 
-	return GetModel(result), nil
+	return GetAlert(result), nil
 }
 
 func (s *AlertService) Get(id string) (*models.Alert, error) {
@@ -54,7 +54,7 @@ func (s *AlertService) Get(id string) (*models.Alert, error) {
 		log.Printf("Unable to get data from database: %v\n", error)
 		return &models.Alert{}, error
 	}
-	return GetModel(result), nil
+	return GetAlert(result), nil
 }
 
 func (s *AlertService) GetByDeviceId(deviceId string) (*[]models.Alert, error) {
@@ -66,7 +66,7 @@ func (s *AlertService) GetByDeviceId(deviceId string) (*[]models.Alert, error) {
 
 	res := []models.Alert{}
 	for _, entity := range *result {
-		res = append(res, *GetModel(&entity))
+		res = append(res, *GetAlert(&entity))
 	}
 	return &res, nil
 }
@@ -80,7 +80,7 @@ func (s *AlertService) Delete(id string) error {
 	return nil
 }
 
-func GetModel(entity *entity.Alerts) *models.Alert {
+func GetAlert(entity *entity.Alerts) *models.Alert {
 	return &models.Alert{
 		Id:          entity.ID.Hex(),
 		UId:         entity.ID.Hex(),
